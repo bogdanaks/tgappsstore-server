@@ -32,6 +32,24 @@ export class AppController {
     })
   }
 
+  @Get("/search")
+  findSearch(
+    @Query("query") query: string,
+    @Query("page") page: number,
+    @Query("limit") limit: number,
+  ): Promise<{
+    data: App[],
+    page: number,
+    limit: number,
+    total: number,
+  }> {
+    return this.appService.findSearch({
+      query,
+      page,
+      limit,
+    })
+  }
+
   @Get(":id")
   findOneApp(@Param("id") id: string): Promise<App> {
     return this.appService.findOneApp(id)

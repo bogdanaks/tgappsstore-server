@@ -1,9 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common"
-import { FindOptionsWhere, Repository } from "typeorm"
+import { FindOptionsWhere, Raw, Repository } from "typeorm"
 
 import { AppCategory } from "../app-category/app-category.entity"
 import { AppType } from "../app-type/app-type.entity"
-import { RecommendationApp } from "../recommendation/entities/recommendation-app.entity"
 import { App } from "./entities/app.entity"
 import { AppCreateProps } from "./interfaces"
 
@@ -46,8 +45,42 @@ export class AppService {
 
     return {
       data,
-      page,
-      limit,
+      page: Number(page),
+      limit: Number(limit),
+      total: Number(totalCount),
+    }
+  }
+
+  async findSearch({
+    query,
+    page = 1,
+    limit = 30,
+  }: {
+    query: string,
+    page?: number,
+    limit?: number
+  }): Promise<{
+    data: App[],
+    page: number,
+    limit: number,
+    total: number,
+  }> {
+    const data = await this.appRepository.find({
+      where: { title: Raw(alias => `LOWER(${alias}) Like '%${query.toLowerCase()}%'`) },
+      relations: ["type", "category"],
+      take: limit,
+      skip: (limit * page) - limit,
+    })
+
+    const totalCount = await this.appRepository.count({
+      where: { title: Raw(alias => `LOWER(${alias}) Like '%${query.toLowerCase()}%'`) },
+      relations: ["type", "category"],
+    })
+
+    return {
+      data,
+      page: Number(page),
+      limit: Number(limit),
       total: totalCount,
     }
   }
