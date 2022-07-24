@@ -3,6 +3,7 @@ FROM node:14 as builder
 WORKDIR /usr/src/app
 COPY . ./
 
+RUN yarn add sharp
 RUN yarn install
 RUN yarn run build
 
