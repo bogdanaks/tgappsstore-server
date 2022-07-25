@@ -21,6 +21,9 @@ export const databaseProviders = [
         database: configService.get("PG_DATABASE"),
         entities: [App, AppType, AppCategory, Favorite, AppOpening, RecommendationApp, RecommendationCategory],
         synchronize: false,
+        ssl: {
+          rejectUnauthorized: false,
+        },
       })
       return dataSource.initialize()
     },
