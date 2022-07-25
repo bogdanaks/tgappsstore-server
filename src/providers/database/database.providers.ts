@@ -1,3 +1,4 @@
+import { ConfigService } from "@nestjs/config"
 import { App } from "src/models/app/entities/app.entity"
 import { AppCategory } from "src/models/app-category/app-category.entity"
 import { AppOpening } from "src/models/app-opening/app-opening.entity"
@@ -10,19 +11,19 @@ import { DataSource } from "typeorm"
 export const databaseProviders = [
   {
     provide: "DATA_SOURCE",
-    useFactory: async () => {
+    useFactory: async (configService: ConfigService) => {
       const dataSource = new DataSource({
         type: "postgres",
-        host: "localhost",
-        port: 5432,
-        username: "postgres",
-        password: "A737TE",
-        database: "tgappsstore",
+        host: configService.get("PG_HOST"),
+        port: configService.get("PG_PORT"),
+        username: configService.get("PG_USER"),
+        password: configService.get("PG_PASSWORD"),
+        database: configService.get("PG_DATABASE"),
         entities: [App, AppType, AppCategory, Favorite, AppOpening, RecommendationApp, RecommendationCategory],
         synchronize: false,
       })
-
       return dataSource.initialize()
     },
+    inject: [ConfigService]
   },
 ]

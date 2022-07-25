@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common"
+import { ConfigModule } from "@nestjs/config"
 import { ServeStaticModule } from "@nestjs/serve-static"
 import { join } from "path"
 
@@ -14,7 +15,14 @@ import { MainController } from "./main.controller"
 import { MainService } from "./main.service"
 
 @Module({
-  imports: [AppModule, DeveloperModule, AppTypeModule, AppCategoryModule, UserModule, FavoriteModule, AppOpeningModule, RecommendationModule,
+  imports: [ConfigModule.forRoot(),
+    AppModule, DeveloperModule,
+    AppTypeModule,
+    AppCategoryModule,
+    UserModule,
+    FavoriteModule,
+    AppOpeningModule,
+    RecommendationModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "../../../", "public/app-images"),
       serveStaticOptions: {
