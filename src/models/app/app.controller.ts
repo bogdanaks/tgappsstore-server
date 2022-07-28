@@ -3,7 +3,7 @@ import { ApiTags } from "@nestjs/swagger"
 import { ResponseInterceptor } from "src/common/response.interceptor"
 
 import { AppService } from "./app.service"
-import { App, AppStatus } from "./entities/app.entity"
+import { App } from "./entities/app.entity"
 
 @ApiTags("app")
 @UseInterceptors(ResponseInterceptor)
