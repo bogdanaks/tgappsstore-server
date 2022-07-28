@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common"
 import { Repository } from "typeorm"
 
+import { AppStatus } from "../app/entities/app.entity"
 import { RecommendationApp } from "../recommendation/entities/recommendation-app.entity"
 import { RecommendationCategory } from "./entities/recommendation-category.entity"
 
@@ -15,11 +16,13 @@ export class RecommendationService {
   
   async findAll({
     categoryId,
+    status = AppStatus.PUBLISHED,
   }: {
     categoryId: string
+    status?: AppStatus
   }): Promise<RecommendationApp[]> {
     return await this.recommendationAppRepository.find({
-      where: { category_id: categoryId },
+      where: { category_id: categoryId, app: { status } },
       relations: ["app", "category"],
     })
   }

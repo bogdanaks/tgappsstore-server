@@ -3,7 +3,7 @@ import { FindOptionsWhere, Raw, Repository } from "typeorm"
 
 import { AppCategory } from "../app-category/app-category.entity"
 import { AppType } from "../app-type/app-type.entity"
-import { App } from "./entities/app.entity"
+import { App, AppStatus } from "./entities/app.entity"
 import { AppCreateProps } from "./interfaces"
 
 @Injectable()
@@ -21,10 +21,12 @@ export class AppService {
     categoryId,
     page = 1,
     limit = 30,
+    status = AppStatus.PUBLISHED
   }: {
     categoryId: string,
     page?: number,
     limit?: number
+    status?: AppStatus
   }): Promise<{
     data: App[],
     page: number,
@@ -32,14 +34,14 @@ export class AppService {
     total: number,
   }> {
     const data = await this.appRepository.find({
-      where: { category_id: categoryId },
+      where: { category_id: categoryId, status },
       relations: ["type", "category"],
       take: limit,
       skip: (limit * page) - limit,
     })
 
     const totalCount = await this.appRepository.count({
-      where: { category_id: categoryId },
+      where: { category_id: categoryId, status },
       relations: ["type", "category"],
     })
 
@@ -55,10 +57,12 @@ export class AppService {
     query,
     page = 1,
     limit = 30,
+    status = AppStatus.PUBLISHED,
   }: {
-    query: string,
-    page?: number,
+    query: string
+    page?: number
     limit?: number
+    status?: AppStatus
   }): Promise<{
     data: App[],
     page: number,
@@ -66,14 +70,14 @@ export class AppService {
     total: number,
   }> {
     const data = await this.appRepository.find({
-      where: { title: Raw(alias => `LOWER(${alias}) Like '%${query.toLowerCase()}%'`) },
+      where: { status, title: Raw(alias => `LOWER(${alias}) Like '%${query.toLowerCase()}%'`) },
       relations: ["type", "category"],
       take: limit,
       skip: (limit * page) - limit,
     })
 
     const totalCount = await this.appRepository.count({
-      where: { title: Raw(alias => `LOWER(${alias}) Like '%${query.toLowerCase()}%'`) },
+      where: { status, title: Raw(alias => `LOWER(${alias}) Like '%${query.toLowerCase()}%'`) },
       relations: ["type", "category"],
     })
 
@@ -86,11 +90,11 @@ export class AppService {
   }
 
   findOne(where: FindOptionsWhere<App>): Promise<App> {
-    return this.appRepository.findOne({ where, relations: ["type", "category"] })
+    return this.appRepository.findOne({ where: { ...where, status: AppStatus.PUBLISHED }, relations: ["type", "category"] })
   }
 
   findOneApp(id: string): Promise<App> {
-    return this.appRepository.findOne({ where: { id }, relations: ["type", "category"] })
+    return this.appRepository.findOne({ where: { id, status: AppStatus.PUBLISHED }, relations: ["type", "category"] })
   }
 
   async createApp(app: AppCreateProps): Promise<App> {
